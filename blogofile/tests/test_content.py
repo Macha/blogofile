@@ -2,7 +2,8 @@ import unittest
 import tempfile
 import shutil
 import os
-import BeautifulSoup
+import lxml.html
+import lxml.etree
 from .. import main
 
 
@@ -147,8 +148,8 @@ This is a test post
         main.main("build")
         feed = open(os.path.join(self.build_path,"_site","blog","feed",
                                  "index.xml")).read()
-        soup = BeautifulSoup.BeautifulStoneSoup(feed)
-        for link in soup.findAll("link"):
+        feed_xml = lxml.etree.fromstring(feed.encode('utf-8'))
+        for link in feed_xml.findall("link"):
             assert(link.contents[0].startswith("http://"))
 
     def testCategoryLinksInPosts(self):
@@ -173,10 +174,10 @@ This is a test post
         #Open up one of the permapages:
         page = open(os.path.join(self.build_path,"_site","blog","2009",
                                  "08","16","this-is-a-test-post","index.html")).read()
-        soup = BeautifulSoup.BeautifulStoneSoup(page)
-        print(soup.findAll("a"))
-        assert soup.find("a",attrs={'href':'/blog/category/category-1'})
-        assert soup.find("a",attrs={'href':'/blog/category/category-2'})
+        html = lxml.html.fromstring(page)
+        print(html.findall("a"))
+        assert html.cssselect("a[href='/blog/category/category-1']")
+        assert html.cssselect("a[href='/blog/category/category-2']")
 
     def testReStructuredFilter(self):
         """Test to make sure reStructuredTest work well"""
