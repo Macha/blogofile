@@ -20,6 +20,8 @@ import codecs
 import pytz
 import yaml
 import logging
+import lxml.html
+import lxml.html.clean
 
 import blogofile_bf as bf
 
@@ -142,7 +144,20 @@ class Post(object):
     # This is the only portion of blogofile that depends on it,
     # so commenting out for now.. to be rewritten later
     def __excerpt(self, num_words=50):
-        return "Blogofile post excerpting is broken right now, sorry."
+        """ Retrieve excerpt from article """
+        if len(self.excerpt) == 0:
+            doc = lxml.html.fromstring(self.content)
+            # Kill scripts, CSS, forms, frames etc.
+            [[tree.drop_tree for tree in doc.findall(elem)] for elem in (
+                'style', 'noscript', 'script')]
+            clean = lxml.html.clean.clean_html(doc)
+            # Remove headers
+            [[tree.drop_tree() for tree in clean.findall(elem)] for elem in (
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6')]
+            text = clean.text_content().replace('\n', ' ').split(' ')
+
+            text = [word for word in text if word != '']
+            return ' '.join(text[:num_words]) + '...'
     
     # def __excerpt(self, num_words=50):
     #     if len(self.excerpt) == 0:

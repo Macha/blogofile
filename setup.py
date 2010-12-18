@@ -16,14 +16,14 @@ setup(name='Blogofile',
       packages=["blogofile", "blogofile/site_init"],
       package_data = {"blogofile/site_init": ["*.zip"]},
       install_requires =['mako',
-                         'BeautifulSoup',
                          'pytz',
                          'pyyaml',
                          'textile',
                          'markdown',
                          'argparse',
                          'pygments',
-                         'docutils'],
+                         'docutils',
+                         'lxml'],
       entry_points="""
       [console_scripts]
       blogofile = blogofile.main:main
